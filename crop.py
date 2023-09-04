@@ -52,7 +52,7 @@ def parse_label_line(line, image_width, image_height):
     return label_class, pixel_coordinates
 
 def read_label_file(file_path, image_width, image_height):
-    with open(file_path, 'r',  encoding='utf-8') as file:
+    with open(file_path, 'r') as file:
         lines = file.readlines()
         labels = [parse_label_line(line, image_width, image_height) for line in lines]
     return labels
@@ -361,11 +361,11 @@ def crop_scratchs(coord_list, side):
     length = len(coord_list)
     desired_ratio = 0.25
     number_of_cropping_scratchs = int(desired_ratio*length)
-    coord_list = quickSort(coord_list, 0, length-1)
+    quickSort(coord_list, 0, length-1)
     if side == "left":
         return coord_list[number_of_cropping_scratchs-1]
     elif side == "right":
-        return coord_list[length-number_of_cropping_scratchs+1]
+        return coord_list[length - number_of_cropping_scratchs]
    
 
 
@@ -419,12 +419,15 @@ def crop(image_path, normlabels, output_folder, repeatnum):
         alllabels.append(adjusted_labels)
 
         output_image_path = os.path.join(output_folder_photos, name + "_" + str(i) + '.jpg')
+        
         cv2.imwrite(output_image_path, cropped_image)
         
         output_label_path = os.path.join(output_folder_labels, name + "_" + str(i) + ".txt")
+        
+
         with open(output_label_path, 'w') as label_output:
             for label_class, points in adjusted_labels:
                 label_output.write(f"{label_class} " + " ".join([f"{x/newwidth} {y/newheight}" for x, y in points]) + "\n")
     return alllabels, repeatnum
 
-testcrop("/home/gizem/Desktop/servislet/task_7/data/97_jpg.rf.0d1b434bcd07759a2ec481179249a609.jpg", 8)
+testcrop("C:/Users/uygarpasa/Desktop/Augmentation/crop/images/97_jpg.rf.0d1b434bcd07759a2ec481179249a609.jpg", 8)
