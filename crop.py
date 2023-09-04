@@ -315,7 +315,19 @@ def find_farthest_scratch(labels, side): #retruns both the list of farthest poin
         return labels_min_y, labels[farthest_label_index]
 
 
+def findthres(image, base, threshold, farthest, frame):
+    totalarea = calculate_polygon_area(farthest[1])
+    
+    shiftedbase = base - 1
+    _ , croppedpoly = crop_image_and_labels(image, [farthest], shiftedbase, base, frame[2], frame[3])
+    croppedarea = calculate_polygon_area(croppedpoly[0][1])
+    while ((totalarea - croppedarea)/totalarea) * 100 > threshold:
+        shiftedbase -= 1
+        _ , croppedpoly = crop_image_and_labels(image, [farthest], shiftedbase, base, frame[2], frame[3])
+        croppedarea = calculate_polygon_area(croppedpoly[0][1])
 
+        
+    return shiftedbase
 
 
 
