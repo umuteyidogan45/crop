@@ -220,7 +220,7 @@ def testcrop(image_path, rnum):
     beee = os.path.splitext(name)[0]
     label_file_path = "./labels/" + beee + ".txt"
     normlabels = read_label_file(label_file_path, image_width, image_height)
-    crop(image_path, normlabels, "none", rnum)
+    crop(image_path, normlabels, ".", rnum)
 
 
 
@@ -375,7 +375,7 @@ def crop(image_path, normlabels, output_folder, repeatnum):
     for i in range(repeatnum):
         image = cv2.imread(image_path)
         image_height, image_width, _ = image.shape
-        output_folder_photos = './croppedphotos'
+        output_folder_photos = "./croppedphotos"
         output_folder_labels = "./croppedlabels"
 
         labels = convert_coordinates(normlabels, image_width, image_height)
@@ -411,18 +411,21 @@ def crop(image_path, normlabels, output_folder, repeatnum):
         newheight = ymax - ymin
 
         name = os.path.basename(image_path)
-        print(name)
+        #print(name)
 
 
         cropped_image, adjusted_labels = crop_image_and_labels(image, labels, xmin, xmax, ymin, ymax)
 
         alllabels.append(adjusted_labels)
 
-        output_image_path = os.path.join(output_folder_photos, name + "_" + str(i) + '.jpg')
-        
+        output_image_path = os.path.join(output_folder_photos, name)
+
+        #print("path is: ", output_image_path)
+        #print("img is:", cropped_image.shape)
+
         cv2.imwrite(output_image_path, cropped_image)
         
-        output_label_path = os.path.join(output_folder_labels, name + "_" + str(i) + ".txt")
+        output_label_path = os.path.join(output_folder_labels, name)
         
 
         with open(output_label_path, 'w') as label_output:
@@ -430,4 +433,4 @@ def crop(image_path, normlabels, output_folder, repeatnum):
                 label_output.write(f"{label_class} " + " ".join([f"{x/newwidth} {y/newheight}" for x, y in points]) + "\n")
     return alllabels, repeatnum
 
-testcrop("C:/Users/uygarpasa/Desktop/Augmentation/crop/images/97_jpg.rf.0d1b434bcd07759a2ec481179249a609.jpg", 8)
+testcrop("./images/97_jpg.rf.0d1b434bcd07759a2ec481179249a609.jpg", 8)
