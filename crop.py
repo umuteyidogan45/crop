@@ -289,6 +289,6 @@ def crop(image_path, normlabels, output_folder, repeatnum):
         with open(output_label_path, 'w') as label_output:
             for label_class, points in adjusted_labels:
                 label_output.write(f"{label_class} " + " ".join([f"{x/newwidth} {y/newheight}" for x, y in points]) + "\n")
-
+    return alllabels, repeatnum
 
 #testcrop("./photos/44_jpg.rf.2acb487445b81e404b5a0462f47ab478.jpg", 8)
