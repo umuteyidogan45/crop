@@ -243,10 +243,8 @@ def calculate_polygon_area(polygon_points):
     return cv2.contourArea(np.array(polygon_points))
 
 
-def find_farthest_scratch(labels, side):
+def find_farthest_scratch(labels, side): #retruns both the list of farthest points and the farthest label coordinates according the chosen side
     def find_max_x(coordinates):
-        
-        
         max_x = float('-inf')  # Initialize with negative infinity to ensure any x value is greater
         for x, y in coordinates:
             if x > max_x:
@@ -284,15 +282,13 @@ def find_farthest_scratch(labels, side):
                 min_y = y
         return min_y
     
-    
-    
-
     if side == 'left':
         labels_max_x = []
         for class_id, label in labels:   
             max_x = find_max_x(label)
             labels_max_x.append(max_x)
         farthest_label_index = find_index_of_max_value(labels_max_x)
+        return labels_max_x, labels[farthest_label_index]
     
     elif side == 'right':
         labels_min_x = []
@@ -300,6 +296,7 @@ def find_farthest_scratch(labels, side):
             min_x = find_min_x(label)
             labels_min_x.append(min_x)
         farthest_label_index = find_index_of_min_value(labels_min_x)
+        return labels_min_x, labels[farthest_label_index]
     
     elif side == 'up':
         labels_max_y = []
@@ -307,6 +304,7 @@ def find_farthest_scratch(labels, side):
             max_y = find_max_y(label)
             labels_max_y.append(max_y)
         farthest_label_index = find_index_of_max_value(labels_max_y)
+        return labels_max_y, labels[farthest_label_index]
     
     elif side == "bottom":
         labels_min_y = []
@@ -314,9 +312,9 @@ def find_farthest_scratch(labels, side):
             min_y = find_min_y(label)
             labels_min_y.append(min_y)
         farthest_label_index = find_index_of_min_value(labels_min_y)
+        return labels_min_y, labels[farthest_label_index]
 
 
-    return labels[farthest_label_index]
 
 
 
