@@ -243,6 +243,84 @@ def calculate_polygon_area(polygon_points):
     return cv2.contourArea(np.array(polygon_points))
 
 
+def find_farthest_scratch(labels, side):
+    def find_max_x(coordinates):
+        
+        
+        max_x = float('-inf')  # Initialize with negative infinity to ensure any x value is greater
+        for x, y in coordinates:
+            if x > max_x:
+                max_x = x
+        return max_x
+    
+    def find_min_x(coordinates):
+        min_x = float('inf')  # Initialize with positive infinity to ensure any x value is smaller
+        for x, y in coordinates:
+            if x < min_x:
+                min_x = x
+        return min_x
+    
+    def find_index_of_max_value(input_list):
+        max_value = max(input_list)
+        max_index = input_list.index(max_value)
+        return max_index
+    
+    def find_index_of_min_value(input_list):
+        min_value = min(input_list)
+        min_index = input_list.index(min_value)
+        return min_index
+    
+    def find_max_y(coordinates):
+        max_y = float('-inf')  # Initialize with negative infinity to ensure any x value is greater
+        for x, y in coordinates:
+            if y > max_y:
+                max_y = y
+        return max_y
+    
+    def find_min_y(coordinates):
+        min_y = float('inf')  # Initialize with positive infinity to ensure any x value is smaller
+        for x, y in coordinates:
+            if y < min_y:
+                min_y = y
+        return min_y
+    
+    
+    
+
+    if side == 'left':
+        labels_max_x = []
+        for class_id, label in labels:   
+            max_x = find_max_x(label)
+            labels_max_x.append(max_x)
+        farthest_label_index = find_index_of_max_value(labels_max_x)
+    
+    elif side == 'right':
+        labels_min_x = []
+        for class_id, label in labels:   
+            min_x = find_min_x(label)
+            labels_min_x.append(min_x)
+        farthest_label_index = find_index_of_min_value(labels_min_x)
+    
+    elif side == 'up':
+        labels_max_y = []
+        for class_id, label in labels:   
+            max_y = find_max_y(label)
+            labels_max_y.append(max_y)
+        farthest_label_index = find_index_of_max_value(labels_max_y)
+    
+    elif side == "bottom":
+        labels_min_y = []
+        for class_id, label in labels:   
+            min_y = find_min_y(label)
+            labels_min_y.append(min_y)
+        farthest_label_index = find_index_of_min_value(labels_min_y)
+
+
+    return labels[farthest_label_index]
+
+
+
+
 def crop(image_path, normlabels, output_folder, repeatnum):
     alllabels = []
     
