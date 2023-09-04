@@ -3,7 +3,8 @@ import numpy as np
 import os
 import random
 
-
+def choose_random_side():
+    return random.choice(['left', 'right'])
 
 def find_intersection(line1, line2):
     A = np.array([[line1[0], -1], [line2[0], -1]])
@@ -330,18 +331,58 @@ def findthres(image, base, threshold, farthest, frame):
     return shiftedbase
 
 
+def partition(array, low, high):
+ 
+    pivot = array[high]
+ 
+    i = low - 1
+
+    for j in range(low, high):
+        if array[j] <= pivot:
+ 
+            i = i + 1
+ 
+            (array[i], array[j]) = (array[j], array[i])
+ 
+    (array[i + 1], array[high]) = (array[high], array[i + 1])
+ 
+    return i + 1
+ 
+ 
+def quickSort(array, low, high):
+    if low < high:
+        pi = partition(array, low, high)
+ 
+        quickSort(array, low, pi - 1)
+ 
+        quickSort(array, pi + 1, high)
+
+def crop_scratchs(coord_list, side):
+    length = len(coord_list)
+    desired_ratio = 0.25
+    number_of_cropping_scratchs = int(desired_ratio*length)
+    coord_list = quickSort(coord_list, 0, length-1)
+    if side == "left":
+        return coord_list[number_of_cropping_scratchs-1]
+    elif side == "right":
+        return coord_list[length-number_of_cropping_scratchs+1]
+   
+
+
 
 def crop(image_path, normlabels, output_folder, repeatnum):
     alllabels = []
-    
     for i in range(repeatnum):
         image = cv2.imread(image_path)
         image_height, image_width, _ = image.shape
         output_folder_photos = './croppedphotos'
         output_folder_labels = "./croppedlabels"
-        labels = convert_coordinates(normlabels, image_width, image_height)
 
-        farthest = find_farthest_scratch(labels, "left")
+        labels = convert_coordinates(normlabels, image_width, image_height)
+        side = choose_random_side()
+
+        
+        x_coords_list, farthest = find_farthest_scratch(labels, side)
         area_of_scratch = calculate_polygon_area(farthest[1])
         print(area_of_scratch)
         
@@ -351,10 +392,10 @@ def crop(image_path, normlabels, output_folder, repeatnum):
         base = findthres(image, scratchframe[1], 70, farthest, scratchframe)
 
         
-        lowestscratch = find_farthest_scratch(labels, "up")
+        _, lowestscratch = find_farthest_scratch(labels, "up")
         scratchframelow = findframe(lowestscratch[1])
 
-
+    
 
         xmin = 0
         xmax = random.randint(base, image_width)
