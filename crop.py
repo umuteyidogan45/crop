@@ -427,4 +427,4 @@ def crop(image_path, normlabels, output_folder, repeatnum):
                 label_output.write(f"{label_class} " + " ".join([f"{x/newwidth} {y/newheight}" for x, y in points]) + "\n")
     return alllabels, repeatnum
 
-#testcrop("./photos/44_jpg.rf.2acb487445b81e404b5a0462f47ab478.jpg", 8)
+testcrop("/home/gizem/Desktop/servislet/task_7/data/97_jpg.rf.0d1b434bcd07759a2ec481179249a609.jpg", 8)
