@@ -395,10 +395,13 @@ def crop(image_path, normlabels, output_folder, repeatnum):
         _, lowestscratch = find_farthest_scratch(labels, "up")
         scratchframelow = findframe(lowestscratch[1])
 
-    
+        if side == "left":
+            xmin = crop_scratchs(x_coords_list, side)
+            xmax = random.randint(base, image_width)
+        else: 
+            xmin = random.randint(0, base)
+            xmax = crop_scratchs(x_coords_list, side)
 
-        xmin = 0
-        xmax = random.randint(base, image_width)
         ymin = random.randint(0, scratchframelow[2])
         ymax = image_height
         newwidth = xmax - xmin
