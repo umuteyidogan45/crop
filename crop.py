@@ -239,7 +239,8 @@ def findframe(polygon):
                 ymax = polygon[i][1]
     return (xmin,xmax,ymin,ymax)
 
-
+def calculate_polygon_area(polygon_points):
+    return cv2.contourArea(np.array(polygon_points))
 
 
 def crop(image_path, normlabels, output_folder, repeatnum):
