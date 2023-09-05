@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import os
 import random
+from apply_augmentation import apply_augmentation
 
 def choose_random_side_horizontal():
     return random.choice(['left', 'right'])
@@ -219,16 +220,6 @@ def convert_coordinates(normalized_coordinates, image_width, image_height):
     return final
 
 
-def testcrop(image_path, rnum):
-    image = cv2.imread(image_path)
-    image_height, image_width, _ = image.shape
-    name = os.path.basename(image_path)
-    beee = os.path.splitext(name)[0]
-    label_file_path = os.path.join("C:/Users/uygarpasa/Desktop/Augmentation/crop/labels", beee + ".txt")  
-    normlabels = read_label_file(label_file_path, image_width, image_height)
-    crop(image_path, normlabels, ".", rnum)
-
-
 
 def findframe(polygon):
     xmin = 100000
@@ -437,8 +428,8 @@ def crop(image_path, normlabels, output_folder, repeatnum):
     for i in range(repeatnum):
         image = cv2.imread(image_path)
         image_height, image_width, _ = image.shape
-        output_folder_photos = ".\croppedphotos"
-        output_folder_labels = ".\croppedlabels"
+        output_folder_photos = output_folder
+        
 
         labels = convert_coordinates(normlabels, image_width, image_height)
         choice_w_h = choose_w_h()
@@ -496,12 +487,11 @@ def crop(image_path, normlabels, output_folder, repeatnum):
             xmin = random.randint(0, scratchframehigh[0])
             xmax = random.randint(scratchframelow[1], image_height)
         
-        newwidth = xmax - xmin
-        newheight = ymax - ymin
+        
 
         name = os.path.basename(image_path)
         beee = os.path.splitext(name)[0]
-        print(beee)
+        
 
 
         cropped_image, adjusted_labels = crop_image_and_labels(image, labels, xmin, xmax, ymin, ymax)
@@ -510,19 +500,12 @@ def crop(image_path, normlabels, output_folder, repeatnum):
 
         output_image_path = os.path.join(output_folder_photos, beee + "_" + str(i) + '.jpg')
 
-        print("path is: ", output_image_path)
-        print("img is:", cropped_image.shape)
+        
 
         os.makedirs(os.path.dirname(output_image_path), exist_ok=True)
         cv2.imwrite(output_image_path, cropped_image)
         
-        output_label_path = os.path.join(output_folder_labels, beee + "_" + str(i) + '.txt')
         
-        os.makedirs(os.path.dirname(output_label_path), exist_ok=True)
-        
-        with open(output_label_path, 'w') as label_output:
-            for label_class, points in adjusted_labels:
-                label_output.write(f"{label_class} " + " ".join([f"{x/newwidth} {y/newheight}" for x, y in points]) + "\n")
     return alllabels, repeatnum
 
-testcrop("crop/images/97_jpg.rf.0d1b434bcd07759a2ec481179249a609.jpg", 5)
+
