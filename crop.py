@@ -218,7 +218,7 @@ def testcrop(image_path, rnum):
     image_height, image_width, _ = image.shape
     name = os.path.basename(image_path)
     beee = os.path.splitext(name)[0]
-    label_file_path = "/labels/" + beee + ".txt"
+    label_file_path = os.path.join("C:/Users/uygarpasa/Desktop/Augmentation/crop/labels", beee + ".txt")  
     normlabels = read_label_file(label_file_path, image_width, image_height)
     crop(image_path, normlabels, ".", rnum)
 
@@ -303,6 +303,7 @@ def find_farthest_scratch(labels, side): #retruns both the list of farthest poin
         labels_max_y = []
         for class_id, label in labels:   
             max_y = find_max_y(label)
+            
             labels_max_y.append(max_y)
         farthest_label_index = find_index_of_max_value(labels_max_y)
         return labels_max_y, labels[farthest_label_index]
@@ -359,21 +360,25 @@ def quickSort(array, low, high):
     return array
 
 def crop_scratchs(coord_list, side):
-    length = len(coord_list)
-    desired_ratio = 0.25
-    number_of_cropping_scratchs = int(desired_ratio*length)
-    sorted_arr = quickSort(coord_list, 0, length-1)
-    if side == "left":
-        return sorted_arr[number_of_cropping_scratchs-1]
-    elif side == "right":
-        return sorted_arr[length - number_of_cropping_scratchs]
+    if coord_list:
+        length = len(coord_list)
+        desired_ratio = 0.25
+        number_of_cropping_scratchs = int(desired_ratio*length)
+
+        sorted_arr = quickSort(coord_list, 0, length-1)
+        if side == "left":
+            if number_of_cropping_scratchs == 0:
+                return coord_list[0]
+            return sorted_arr[number_of_cropping_scratchs-1]
+        elif side == "right":
+            if number_of_cropping_scratchs == 0:
+                return coord_list[-1]
+            return sorted_arr[length - number_of_cropping_scratchs]
+    else:
+        return None
    
 
-def write_labels(output_label_path, labels):
-    with open(output_label_path, 'w') as label_file:
-        for label in labels:
-            label_line = ' '.join(map(str, label)) + '\n'
-            label_file.write(label_line)
+
 
 
 def crop(image_path, normlabels, output_folder, repeatnum):
@@ -381,8 +386,8 @@ def crop(image_path, normlabels, output_folder, repeatnum):
     for i in range(repeatnum):
         image = cv2.imread(image_path)
         image_height, image_width, _ = image.shape
-        output_folder_photos = "./croppedphotos"
-        output_folder_labels = "./croppedlabels"
+        output_folder_photos = ".\croppedphotos"
+        output_folder_labels = ".\croppedlabels"
 
         labels = convert_coordinates(normlabels, image_width, image_height)
         side = choose_random_side()
@@ -411,32 +416,35 @@ def crop(image_path, normlabels, output_folder, repeatnum):
             xmin = random.randint(0, base)
             xmax = crop_scratchs(x_coords_list, side)
 
-        ymin = random.randint(0, scratchframelow[2])
-        ymax = random.randint(0, scratchframehigh[2])
+        ymin = random.randint(0, scratchframehigh[2])
+        ymax = random.randint(scratchframelow[3], image_height)
         newwidth = xmax - xmin
         newheight = ymax - ymin
 
         name = os.path.basename(image_path)
-        #print(name)
+        beee = os.path.splitext(name)[0]
+        print(beee)
 
 
         cropped_image, adjusted_labels = crop_image_and_labels(image, labels, xmin, xmax, ymin, ymax)
 
         alllabels.append(adjusted_labels)
 
-        output_image_path = os.path.join(output_folder_photos, name)
+        output_image_path = os.path.join(output_folder_photos, beee + "_" + str(i) + '.jpg')
 
-        #print("path is: ", output_image_path)
-        #print("img is:", cropped_image.shape)
+        print("path is: ", output_image_path)
+        print("img is:", cropped_image.shape)
 
+        os.makedirs(os.path.dirname(output_image_path), exist_ok=True)
         cv2.imwrite(output_image_path, cropped_image)
         
-        output_label_path = os.path.join(output_folder_labels, name + '.txt')
-        write_labels(output_label_path, alllabels)
-
+        output_label_path = os.path.join(output_folder_labels, beee + "_" + str(i) + '.txt')
+        
+        os.makedirs(os.path.dirname(output_label_path), exist_ok=True)
+        
         with open(output_label_path, 'w') as label_output:
             for label_class, points in adjusted_labels:
                 label_output.write(f"{label_class} " + " ".join([f"{x/newwidth} {y/newheight}" for x, y in points]) + "\n")
     return alllabels, repeatnum
 
-testcrop("/home/gizem/Desktop/servislet/task_7/crop/images/1162658018_front.jpeg", 1)
+testcrop("C:/Users/uygarpasa/Desktop/Augmentation/crop/images/akhand_b43_332_jpg.rf.ff8de00372cc87871f1ad43492ec0f18.jpg", 5)
