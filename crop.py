@@ -3,8 +3,14 @@ import numpy as np
 import os
 import random
 
-def choose_random_side():
+def choose_random_side_horizontal():
     return random.choice(['left', 'right'])
+
+def choose_random_side_vertical():
+    return random.choice(['up', 'bottom'])
+
+def choose_w_h():
+    return random.choice(['w', 'h'])
 
 def find_intersection(line1, line2):
     A = np.array([[line1[0], -1], [line2[0], -1]])
@@ -374,6 +380,15 @@ def crop_scratchs(coord_list, side):
             if number_of_cropping_scratchs == 0:
                 return coord_list[-1]
             return sorted_arr[length - number_of_cropping_scratchs]
+        
+        elif side == "up":
+            if number_of_cropping_scratchs == 0:
+                return coord_list[0]
+            return sorted_arr[number_of_cropping_scratchs-1]
+        else:
+            if number_of_cropping_scratchs == 0:
+                return coord_list[-1]
+            return sorted_arr[length - number_of_cropping_scratchs]
     else:
         return None
    
@@ -390,34 +405,61 @@ def crop(image_path, normlabels, output_folder, repeatnum):
         output_folder_labels = ".\croppedlabels"
 
         labels = convert_coordinates(normlabels, image_width, image_height)
-        side = choose_random_side()
+        choice_w_h = choose_w_h()
+        if choose_w_h == 'w':
+            side = choose_random_side_horizontal()
+            x_coords_list, farthest = find_farthest_scratch(labels, side)
+            area_of_scratch = calculate_polygon_area(farthest[1])
+            print(area_of_scratch)
+            
+            scratchframe = findframe(farthest[1])
+            print(scratchframe)
+            
+            _, lowestscratch = find_farthest_scratch(labels, "up")
+            scratchframelow = findframe(lowestscratch[1])
 
+            _, highestscratch = find_farthest_scratch(labels, "bottom")
+            scratchframehigh = findframe(highestscratch[1])
+
+            if side == "left":
+                base = findthres(image, scratchframe[1], 70, farthest, scratchframe)
+                xmin = crop_scratchs(x_coords_list, side)
+                xmax = random.randint(base, image_width)
+            else: 
+                base = findthres(image, scratchframe[0], 70, farthest, scratchframe)
+                xmin = random.randint(0, base)
+                xmax = crop_scratchs(x_coords_list, side)
+
+            ymin = random.randint(0, scratchframehigh[2])
+            ymax = random.randint(scratchframelow[3], image_height)
+
+        else:
+            side = choose_random_side_vertical()
+            y_coords_list, farthest = find_farthest_scratch(labels, side)
+            area_of_scratch = calculate_polygon_area(farthest[1])
+            print(area_of_scratch)
+            
+            scratchframe = findframe(farthest[1])
+            print(scratchframe)
+            
+            _, lowestscratch = find_farthest_scratch(labels, "left")
+            scratchframelow = findframe(lowestscratch[1])
+
+            _, highestscratch = find_farthest_scratch(labels, "right")
+            scratchframehigh = findframe(highestscratch[1])
+
+            if side == "up":
+                base = findthres(image, scratchframe[3], 70, farthest, scratchframe)
+                ymin = crop_scratchs(y_coords_list, side)
+                ymax = random.randint(base, image_height)
+            else: 
+                base = findthres(image, scratchframe[2], 70, farthest, scratchframe)
+                ymin = random.randint(0, base)
+                ymax = crop_scratchs(y_coords_list, side)
+
+            xmin = random.randint(0, scratchframehigh[0])
+            xmax = random.randint(scratchframelow[1], image_height)
         
-        x_coords_list, farthest = find_farthest_scratch(labels, side)
-        area_of_scratch = calculate_polygon_area(farthest[1])
-        print(area_of_scratch)
-        
-        scratchframe = findframe(farthest[1])
-        print(scratchframe)
-
-        base = findthres(image, scratchframe[1], 70, farthest, scratchframe)
-
-        
-        _, lowestscratch = find_farthest_scratch(labels, "up")
-        scratchframelow = findframe(lowestscratch[1])
-
-        _, highestscratch = find_farthest_scratch(labels, "bottom")
-        scratchframehigh = findframe(highestscratch[1])
-
-        if side == "left":
-            xmin = crop_scratchs(x_coords_list, side)
-            xmax = random.randint(base, image_width)
-        else: 
-            xmin = random.randint(0, base)
-            xmax = crop_scratchs(x_coords_list, side)
-
-        ymin = random.randint(0, scratchframehigh[2])
-        ymax = random.randint(scratchframelow[3], image_height)
         newwidth = xmax - xmin
         newheight = ymax - ymin
 
