@@ -323,15 +323,51 @@ def find_farthest_scratch(labels, side): #retruns both the list of farthest poin
         return labels_min_y, labels[farthest_label_index]
 
 
-def findthres(image, base, threshold, farthest, frame):
+def findthres(image, base, threshold, farthest, frame, side):
     totalarea = calculate_polygon_area(farthest[1])
     
-    shiftedbase = base - 1
-    _ , croppedpoly = crop_image_and_labels(image, [farthest], shiftedbase, base, frame[2], frame[3])
+    if side == "left":
+        shiftedbase = base - 1
+        xmin = shiftedbase
+        xmax = base
+        ymin = frame[2]
+        ymax = frame[3]
+    elif side == "right":
+        shiftedbase = base + 1
+        xmin = base
+        xmax = shiftedbase
+        ymin = frame[2]
+        ymax = frame[3]
+    elif side == "up":
+        shiftedbase = base - 1
+        xmin = frame[0]
+        xmax = frame[1]
+        ymin = shiftedbase
+        ymax = base
+    elif side == "bottom":
+        shiftedbase = base + 1
+        xmin = frame[0]
+        xmax = frame[1]
+        ymin = base
+        ymax = shiftedbase
+    
+    
+    _ , croppedpoly = crop_image_and_labels(image, [farthest], xmin, xmax, ymin, ymax)
     croppedarea = calculate_polygon_area(croppedpoly[0][1])
     while ((totalarea - croppedarea)/totalarea) * 100 > threshold:
-        shiftedbase -= 1
-        _ , croppedpoly = crop_image_and_labels(image, [farthest], shiftedbase, base, frame[2], frame[3])
+        if side == "left":
+            shiftedbase -= 1 
+            xmin = shiftedbase
+        elif side == "right":
+            shiftedbase += 1
+            xmax = shiftedbase
+        elif side == "up":
+            shiftedbase -= 1 
+            ymin = shiftedbase
+        elif side == "bottom":
+            shiftedbase += 1
+            ymax = shiftedbase
+        _ , croppedpoly = crop_image_and_labels(image, [farthest], xmin, xmax, ymin, ymax)
         croppedarea = calculate_polygon_area(croppedpoly[0][1])
 
         
@@ -422,11 +458,11 @@ def crop(image_path, normlabels, output_folder, repeatnum):
             scratchframehigh = findframe(highestscratch[1])
 
             if side == "left":
-                base = findthres(image, scratchframe[1], 70, farthest, scratchframe)
+                base = findthres(image, scratchframe[1], 70, farthest, scratchframe, "left")
                 xmin = crop_scratchs(x_coords_list, side)
                 xmax = random.randint(base, image_width)
             else: 
-                base = findthres(image, scratchframe[0], 70, farthest, scratchframe)
+                base = findthres(image, scratchframe[0], 70, farthest, scratchframe, "right")
                 xmin = random.randint(0, base)
                 xmax = crop_scratchs(x_coords_list, side)
 
@@ -449,11 +485,11 @@ def crop(image_path, normlabels, output_folder, repeatnum):
             scratchframehigh = findframe(highestscratch[1])
 
             if side == "up":
-                base = findthres(image, scratchframe[3], 70, farthest, scratchframe)
+                base = findthres(image, scratchframe[3], 70, farthest, scratchframe, "up")
                 ymin = crop_scratchs(y_coords_list, side)
                 ymax = random.randint(base, image_height)
             else: 
-                base = findthres(image, scratchframe[2], 70, farthest, scratchframe)
+                base = findthres(image, scratchframe[2], 70, farthest, scratchframe, "bottom")
                 ymin = random.randint(0, base)
                 ymax = crop_scratchs(y_coords_list, side)
 
@@ -489,4 +525,4 @@ def crop(image_path, normlabels, output_folder, repeatnum):
                 label_output.write(f"{label_class} " + " ".join([f"{x/newwidth} {y/newheight}" for x, y in points]) + "\n")
     return alllabels, repeatnum
 
-testcrop("C:/Users/uygarpasa/Desktop/Augmentation/crop/images/akhand_b43_332_jpg.rf.ff8de00372cc87871f1ad43492ec0f18.jpg", 5)
+testcrop("crop/images/97_jpg.rf.0d1b434bcd07759a2ec481179249a609.jpg", 5)
