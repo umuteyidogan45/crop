@@ -218,7 +218,7 @@ def testcrop(image_path, rnum):
     image_height, image_width, _ = image.shape
     name = os.path.basename(image_path)
     beee = os.path.splitext(name)[0]
-    label_file_path = "./labels/" + beee + ".txt"
+    label_file_path = "/labels/" + beee + ".txt"
     normlabels = read_label_file(label_file_path, image_width, image_height)
     crop(image_path, normlabels, ".", rnum)
 
@@ -356,18 +356,24 @@ def quickSort(array, low, high):
         quickSort(array, low, pi - 1)
  
         quickSort(array, pi + 1, high)
+    return array
 
 def crop_scratchs(coord_list, side):
     length = len(coord_list)
     desired_ratio = 0.25
     number_of_cropping_scratchs = int(desired_ratio*length)
-    quickSort(coord_list, 0, length-1)
+    sorted_arr = quickSort(coord_list, 0, length-1)
     if side == "left":
-        return coord_list[number_of_cropping_scratchs-1]
+        return sorted_arr[number_of_cropping_scratchs-1]
     elif side == "right":
-        return coord_list[length - number_of_cropping_scratchs]
+        return sorted_arr[length - number_of_cropping_scratchs]
    
 
+def write_labels(output_label_path, labels):
+    with open(output_label_path, 'w') as label_file:
+        for label in labels:
+            label_line = ' '.join(map(str, label)) + '\n'
+            label_file.write(label_line)
 
 
 def crop(image_path, normlabels, output_folder, repeatnum):
@@ -425,12 +431,12 @@ def crop(image_path, normlabels, output_folder, repeatnum):
 
         cv2.imwrite(output_image_path, cropped_image)
         
-        output_label_path = os.path.join(output_folder_labels, name)
-        
+        output_label_path = os.path.join(output_folder_labels, name + '.txt')
+        write_labels(output_label_path, alllabels)
 
         with open(output_label_path, 'w') as label_output:
             for label_class, points in adjusted_labels:
                 label_output.write(f"{label_class} " + " ".join([f"{x/newwidth} {y/newheight}" for x, y in points]) + "\n")
     return alllabels, repeatnum
 
-testcrop("./images/97_jpg.rf.0d1b434bcd07759a2ec481179249a609.jpg", 8)
+testcrop("/home/gizem/Desktop/servislet/task_7/crop/images/1162658018_front.jpeg", 1)
