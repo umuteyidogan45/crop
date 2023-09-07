@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import os
 import random
-from apply_augmentation import apply_augmentation
+
 
 def choose_random_side_horizontal():
     return random.choice(['left', 'right'])
@@ -433,7 +433,7 @@ def crop(image_path, normlabels, output_folder, repeatnum):
 
         labels = convert_coordinates(normlabels, image_width, image_height)
         choice_w_h = choose_w_h()
-        if choose_w_h == 'w':
+        if choice_w_h == 'w':
             side = choose_random_side_horizontal()
             x_coords_list, farthest = find_farthest_scratch(labels, side)
             area_of_scratch = calculate_polygon_area(farthest[1])
@@ -492,20 +492,24 @@ def crop(image_path, normlabels, output_folder, repeatnum):
         name = os.path.basename(image_path)
         beee = os.path.splitext(name)[0]
         
-
+        newwidth = xmax - xmin
+        newheight = ymax - ymin
 
         cropped_image, adjusted_labels = crop_image_and_labels(image, labels, xmin, xmax, ymin, ymax)
+        normalized_labels = []
+        for class_value, label in adjusted_labels:
+            normalized_label = [(x / newwidth, y / newheight) for x, y in label]
+            normalized_labels.append((class_value, normalized_label))
+        alllabels.append(normalized_labels)
 
-        alllabels.append(adjusted_labels)
-
-        output_image_path = os.path.join(output_folder_photos, beee + "_" + str(i) + '.jpg')
+        output_image_path = os.path.join(output_folder_photos, beee + "_cropped" + str(i) + '.jpg')
 
         
 
         os.makedirs(os.path.dirname(output_image_path), exist_ok=True)
         cv2.imwrite(output_image_path, cropped_image)
         
-        
+    
     return alllabels, repeatnum
 
 
