@@ -392,29 +392,31 @@ def quickSort(array, low, high):
         quickSort(array, pi + 1, high)
     return array
 
-def crop_scratchs(coord_list, side):
+def crop_scratchs(coord_list, side, image_width, image_height):
     if coord_list:
         length = len(coord_list)
         desired_ratio = 0.25
         number_of_cropping_scratchs = int(desired_ratio*length)
-
         sorted_arr = quickSort(coord_list, 0, length-1)
+
         if side == "left":
             if number_of_cropping_scratchs == 0:
-                return coord_list[0]
+                return random.randint(0, sorted_arr[0])
             return sorted_arr[number_of_cropping_scratchs-1]
+        
         elif side == "right":
             if number_of_cropping_scratchs == 0:
-                return coord_list[-1]
+                return random.randint(sorted_arr[-1], image_width)
             return sorted_arr[length - number_of_cropping_scratchs]
         
         elif side == "up":
             if number_of_cropping_scratchs == 0:
-                return coord_list[0]
+                return random.randint(0, sorted_arr[0])
             return sorted_arr[number_of_cropping_scratchs-1]
+        
         else:
             if number_of_cropping_scratchs == 0:
-                return coord_list[-1]
+                return random.randint(sorted_arr[-1], image_height)
             return sorted_arr[length - number_of_cropping_scratchs]
     else:
         return None
@@ -450,12 +452,12 @@ def crop(image_path, normlabels, output_folder, repeatnum):
 
             if side == "left":
                 base = findthres(image, scratchframe[1], 70, farthest, scratchframe, "left")
-                xmin = crop_scratchs(x_coords_list, side)
+                xmin = crop_scratchs(x_coords_list, side, image_width, image_height)
                 xmax = random.randint(base, image_width)
             else: 
                 base = findthres(image, scratchframe[0], 70, farthest, scratchframe, "right")
                 xmin = random.randint(0, base)
-                xmax = crop_scratchs(x_coords_list, side)
+                xmax = crop_scratchs(x_coords_list, side, image_width, image_height)
 
             ymin = random.randint(0, scratchframehigh[2])
             ymax = random.randint(scratchframelow[3], image_height)
@@ -469,23 +471,23 @@ def crop(image_path, normlabels, output_folder, repeatnum):
             scratchframe = findframe(farthest[1])
             print(scratchframe)
             
-            _, lowestscratch = find_farthest_scratch(labels, "left")
-            scratchframelow = findframe(lowestscratch[1])
+            _, rigthest_scratch = find_farthest_scratch(labels, "left")
+            scratch_frame_right = findframe(rigthest_scratch[1])
 
-            _, highestscratch = find_farthest_scratch(labels, "right")
-            scratchframehigh = findframe(highestscratch[1])
+            _, leftest_scratch = find_farthest_scratch(labels, "right")
+            scratch_frame_left = findframe(leftest_scratch[1])
 
             if side == "up":
                 base = findthres(image, scratchframe[3], 70, farthest, scratchframe, "up")
-                ymin = crop_scratchs(y_coords_list, side)
+                ymin = crop_scratchs(y_coords_list, side, image_width, image_height)
                 ymax = random.randint(base, image_height)
             else: 
                 base = findthres(image, scratchframe[2], 70, farthest, scratchframe, "bottom")
                 ymin = random.randint(0, base)
-                ymax = crop_scratchs(y_coords_list, side)
+                ymax = crop_scratchs(y_coords_list, side, image_width, image_height)
 
-            xmin = random.randint(0, scratchframehigh[0])
-            xmax = random.randint(scratchframelow[1], image_height)
+            xmin = random.randint(0, scratch_frame_left[0])
+            xmax = random.randint(scratch_frame_right[1], image_width)
         
         
 
