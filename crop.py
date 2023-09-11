@@ -314,7 +314,7 @@ def find_farthest_scratch(labels, side): #retruns both the list of farthest poin
         return labels_min_y, labels[farthest_label_index]
 
 
-def findthres(image, base, threshold, farthest, frame, side):
+def findthres(image, base, threshold, farthest, frame, side): 
     totalarea = calculate_polygon_area(farthest[1])
     
     if side == "left":
@@ -498,14 +498,16 @@ def crop(image_path, normlabels, output_folder, repeatnum):
             ymax = ymin + 480
         if ymax - ymin < 480 and ymin + 480 > image_height:
             ymin = ymax - 480 
+
         name = os.path.basename(image_path)
         beee = os.path.splitext(name)[0]
-        
+
         newwidth = xmax - xmin
         newheight = ymax - ymin
 
         cropped_image, adjusted_labels = crop_image_and_labels(image, labels, xmin, xmax, ymin, ymax)
         normalized_labels = []
+
         for class_value, label in adjusted_labels:
             normalized_label = [(x / newwidth, y / newheight) for x, y in label]
             normalized_labels.append((class_value, normalized_label))
