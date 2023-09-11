@@ -454,6 +454,7 @@ def crop(image_path, normlabels, output_folder, repeatnum):
                 base = findthres(image, scratchframe[1], 70, farthest, scratchframe, "left")
                 xmin = crop_scratchs(x_coords_list, side, image_width, image_height)
                 xmax = random.randint(base, image_width)
+
             else: 
                 base = findthres(image, scratchframe[0], 70, farthest, scratchframe, "right")
                 xmin = random.randint(0, base)
@@ -488,9 +489,15 @@ def crop(image_path, normlabels, output_folder, repeatnum):
 
             xmin = random.randint(0, scratch_frame_left[0])
             xmax = random.randint(scratch_frame_right[1], image_width)
-        
-        
 
+        if xmax - xmin < 480 and xmin + 480 < image_width:
+            xmax = xmin + 480
+        if xmax - xmin < 480 and xmin + 480 > image_width:
+            xmin = xmax -480
+        if ymax - ymin < 480 and ymin + 480 < image_height:
+            ymax = ymin + 480
+        if ymax - ymin < 480 and ymin + 480 > image_height:
+            ymin = ymax - 480 
         name = os.path.basename(image_path)
         beee = os.path.splitext(name)[0]
         
